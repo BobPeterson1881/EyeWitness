@@ -27,6 +27,7 @@ class HTTPTableObject(object):
         self._default_creds = None
         self._category = None
         self._ssl_error = False
+        self._cert_info = {}
         self._ua_left = None
         self._resolved = None
 
@@ -197,6 +198,14 @@ class HTTPTableObject(object):
     def ssl_error(self, ssl_error):
         self._ssl_error = ssl_error
 
+    @property
+    def cert_info(self):
+        return self._cert_info
+
+    @cert_info.setter
+    def cert_info(self, cert_info):
+        self._cert_info=cert_info
+
     def create_table_html(self):
         scr_path = os.path.relpath(self.screenshot_path, self.root_path)
         src_path = os.path.relpath(self.source_path, self.root_path)
@@ -255,6 +264,15 @@ class HTTPTableObject(object):
                 except UnicodeEncodeError:
                     html += u'<br><b> {0}:</b> {1}\n'.format(
                         self.sanitize(key), self.sanitize(value))
+
+        #cert info
+        if self.cert_info:
+            html += ("""<br><br><hr style="border-top: 2px solid #bbb"><b>Certificate information</b><br>""")
+            html += '<br><b> {0}:</b> {1}\n'.format("Cert Name",self.cert_info['subject'].get('CN','Unknown'))
+            html += '<br><b> {0}:</b> {1}\n'.format("Issuer",self.cert_info['issuer'].get('CN','Unknown'))
+            html += '<br><b> {0}:</b> {1}\n'.format("Issued",self.cert_info['notBefore'])
+            html += '<br><b> {0}:</b> {1}\n'.format("Expires",self.cert_info['notAfter'])
+
         if self.blank:
             html += ("""<br></td>
             <td><div style=\"display: inline-block; width: 850px;\">Page Blank\

@@ -122,6 +122,8 @@ def create_cli_parser():
                               type=lambda s:[int(i) for i in s.split(",")],
                               help=("Comma-separated list of exclusive ports to "
                               "use (e.g. '80,8080')"))
+    http_options.add_argument('--cert-info', default=False,
+                              action='store_true', help='Show TLS certificate information for HTTPS sites')                         
     http_options.add_argument('--prepend-https', default=False, action='store_true',
                               help='Prepend http:// and https:// to URLs without either')
     http_options.add_argument('--selenium-log-path', default='./geckodriver.log', action='store',

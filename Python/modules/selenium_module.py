@@ -5,6 +5,8 @@ import sys
 import urllib.request
 import urllib.error
 import ssl
+import datetime
+import OpenSSL.crypto as crypto
 
 try:
     from ssl import CertificateError as sslerr
@@ -262,8 +264,6 @@ def capture_host(cli_parsed, http_object, driver, ua=None):
         headers = {'Error': 'Invalid SSL Certificate'}
         http_object.ssl_error = True
 
-<<<<<<< HEAD
-=======
     # Get certificate information if requested
     if (cli_parsed.cert_info) and ('https' in http_object.remote_system):
         print("Remote System")
@@ -329,7 +329,6 @@ def capture_host(cli_parsed, http_object, driver, ua=None):
             print(e)
                 
 
->>>>>>> 040541d (Added code to pull basic TLS/SSL certificate information and include in the report when using the --cert-info cmdline option.)
     try:
         http_object.page_title = 'Unknown' if driver.title == '' else driver.title.encode(
             'utf-8')
