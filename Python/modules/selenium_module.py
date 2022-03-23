@@ -262,6 +262,74 @@ def capture_host(cli_parsed, http_object, driver, ua=None):
         headers = {'Error': 'Invalid SSL Certificate'}
         http_object.ssl_error = True
 
+<<<<<<< HEAD
+=======
+    # Get certificate information if requested
+    if (cli_parsed.cert_info) and ('https' in http_object.remote_system):
+        print("Remote System")
+        print(http_object.remote_system)
+        host=http_object.remote_system.split('//')[1]
+        port=443
+        print("Host: {}, Port {}".format(host,port))
+
+        try:
+            conn = socket.create_connection((host, port))
+            sock = context.wrap_socket(conn, server_hostname=host)
+            cert = sock.getpeercert(True)
+
+            #Convert the cert to x509 so we can parse.
+            x509=crypto.load_certificate(crypto.FILETYPE_ASN1,cert)
+            now = datetime.datetime.now()
+            begin = datetime.datetime.strptime(x509.get_notBefore().decode(), "%Y%m%d%H%M%SZ")
+            begin_ok = begin < now
+            end = datetime.datetime.strptime(x509.get_notAfter().decode(), "%Y%m%d%H%M%SZ")
+            end_ok = end > now
+            if end_ok:
+                days_to_expire="{} days".format((end-now).days)
+            else:
+                days_to_expire="Expired"
+
+            alt_name=''
+            for i in range(x509.get_extension_count()):
+                    ext = x509.get_extension(i)
+                    ext_name = ext.get_short_name().decode()
+                    if ext_name == "subjectAltName":
+                        alt_name=ext._subjectAltNameString()
+
+
+
+
+            subject_components=[(z[0].decode(),z[1].decode()) for z in x509.get_subject().get_components()]
+            issuer_components=[(z[0].decode(),z[1].decode()) for z in x509.get_issuer().get_components()]
+
+            cert_info = {
+                'subject': dict(subject_components),
+                'issuer': dict(issuer_components),
+                'altNames':alt_name,
+                'serialNumber': x509.get_serial_number(),
+                'version': x509.get_version(),
+                'notBefore': begin,
+                'notAfter': end,
+                'daysToExpire': days_to_expire
+            }
+
+            #append cert info to the object
+            http_object.cert_info = cert_info
+
+        except socket.error as e:
+            if e.errno == 104:
+                print("Error:  Connection Reset")
+            elif e.errno == 10054:
+                print("Error:  Connection Reset")
+            else:
+                print("Error:  Bad Status")
+                print(e)
+        except Exception as e:
+            print("Something went wrong")
+            print(e)
+                
+
+>>>>>>> 040541d (Added code to pull basic TLS/SSL certificate information and include in the report when using the --cert-info cmdline option.)
     try:
         http_object.page_title = 'Unknown' if driver.title == '' else driver.title.encode(
             'utf-8')
