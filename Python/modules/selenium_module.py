@@ -4,6 +4,7 @@ import socket
 import sys
 import urllib.request
 import urllib.error
+import urllib.parse
 import ssl
 import datetime
 import OpenSSL.crypto as crypto
@@ -265,12 +266,16 @@ def capture_host(cli_parsed, http_object, driver, ua=None):
         http_object.ssl_error = True
 
     # Get certificate information if requested
-    if (cli_parsed.cert_info) and ('https' in http_object.remote_system):
-        print("Remote System")
-        print(http_object.remote_system)
-        host=http_object.remote_system.split('//')[1]
-        port=443
-        print("Host: {}, Port {}".format(host,port))
+    if (cli_parsed.cert_info) and ('https' in http_object.remote_system): 
+        
+        #Extract hostname and port from remote_system object
+        url=urllib.parse.urlparse(http_object.remote_system)
+        host=url.hostname
+
+        if url.port is not None:
+            port=url.port 
+        else:
+            port=443
 
         try:
             conn = socket.create_connection((host, port))
